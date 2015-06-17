@@ -7,9 +7,9 @@
 #include "baxter_core_msgs/JointCommand.h"
 #include "std_msgs/Header.h"
 #include "tf/transform_datatypes.h"
-#include "LinearMath/btMatrix3x3.h"
 #include <sstream>
 #include <cstdlib>
+#include <cmath>
 
 int main(int argc, char** argv)
 {
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
         ros::Rate loop_rate(10);
 
         baxter_core_msgs::SolvePositionIK srv;
-        double posx, posy, posz, orix, oriy, oriz, oriwi, heading, attitude, bank;
+        double posx, posy, posz, orix, oriy, oriz, oriw, heading, attitude, bank;
         int s0, s1, e0, e1, w0, w1, w2;
        
         posx = atof(argv[1]);
@@ -46,6 +46,18 @@ int main(int argc, char** argv)
         bank = atof(argv[4]);
         heading = atof(argv[5]);
         attitude = atof(argv[6]);
+
+    	double mathc1 = cos(heading);
+    	double maths1 = sin(heading);
+    	double mathc2 = cos(attitude);
+    	double maths2 = sin(attitude);
+    	double mathc3 = cos(bank);
+    	double maths3 = sin(bank);
+    	oriw = sqrt(1.0 + mathc1 * mathc2 + mathc1*mathc3 - maths1 * maths2 * maths3 + mathc2*mathc3) / 2.0;
+    	double oriw4 = (4.0 * oriw);
+    	orix = (mathc2 * maths3 + mathc1 * maths3 + maths1 * maths2 * mathc3) / oriw4;
+    	oriy = (maths1 * mathc2 + maths1 * mathc3 + mathc1 * maths2 * maths3) / oriw4;
+    	oriz = (-maths1 * maths3 + mathc1 * maths2 * mathc3 +maths2) / oriw4;
 
         ROS_INFO("%f, %f, %f, %f, %f, %f, %f\n", posx, posy, posz, orix, oriy, oriz, oriw);
 
