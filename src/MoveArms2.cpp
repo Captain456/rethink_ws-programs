@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 
         if(argc != 8)
         {
-                ROS_INFO("Incorrect usage. Try 'pose (position) <x> <y> <z> (orientation) <x> <y> <z> <w>'.\n");
+                ROS_INFO("Incorrect usage. Try 'move_hand2 <left/right> <x> <y> <z> <roll> <pitch> <yaw>'.\n");
                 exit(1);
         }
 

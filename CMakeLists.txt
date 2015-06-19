@@ -108,17 +108,27 @@ include_directories(
 ## Declare a cpp executable
  add_executable(move_arms src/MoveArms.cpp)
  add_executable(move_arms2 src/MoveArms2.cpp)
+ add_executable(wave src/Wave.cpp)
+ add_executable(wave_motion src/WaveMotion.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
  add_dependencies(move_arms programs_generate_messages_cpp)
  add_dependencies(move_arms2 programs_generate_messages_cpp) 
+ add_dependencies(wave programs_generate_messages_cpp)
+ add_dependencies(wave_motion programs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(move_arms
    ${catkin_LIBRARIES}
  )
  target_link_libraries(move_arms2
+   ${catkin_LIBRARIES}
+ )
+ target_link_libraries(wave
+   ${catkin_LIBRARIES}
+ )
+ target_link_libraries(wave_motion
    ${catkin_LIBRARIES}
  )
 
