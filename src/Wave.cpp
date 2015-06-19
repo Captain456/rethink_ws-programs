@@ -13,7 +13,6 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
-#include "unistd.h"
 
 int main(int argc, char** argv)
 {
@@ -36,13 +35,6 @@ int main(int argc, char** argv)
 	{
 		armPose_pub = n.advertise<baxter_core_msgs::JointCommand>("/robot/limb/left/joint_command", 1000);
 
-		//e0cur = n.subscribe<control_msgs::JointControllerState>("/robot/left_joint_position_controller/joints/left_e0_controller/state", 1000, callbacke0);
-		//e1cur = n.subscribe<control_msgs::JointControllerState>("/robot/left_joint_position_controller/joints/left_e1_controller/state", 1000, callbacke1);
-		//s0cur = n.subscribe<control_msgs::JointControllerState>("/robot/left_joint_position_controller/joints/left_s0_controller/state", 1000, callbacks0);
-		//s1cur = n.subscribe<control_msgs::JointControllerState>("/robot/left_joint_position_controller/joints/left_s1_controller/state", 1000, callbacks1);
-		//w0cur = n.subscribe<control_msgs::JointControllerState>("/robot/left_joint_position_controller/joints/left_w0_controller/state", 1000, callbackw0);
-		//w1cur = n.subscribe<control_msgs::JointControllerState>("/robot/left_joint_position_controller/joints/left_w1_controller/state", 1000, callbackw1);
-		//w2cur = n.subscribe<control_msgs::JointControllerState>("/robot/left_joint_position_controller/joints/left_w2_controller/state", 1000, callbackw2);
 		names[0].data = "left_e0";
 		names[1].data = "left_e1";
 		names[2].data = "left_s0";
@@ -55,14 +47,6 @@ int main(int argc, char** argv)
 	{
 		armPose_pub = n.advertise<baxter_core_msgs::JointCommand>("/robot/limb/right/joint_command", 1000);
 
-                //e0cur = n.subscribe<control_msgs::JointControllerState>("/robot/right_joint_position_controller/joints/right_e0_controller/state", 1000, callbacke0);
-                //e1cur = n.subscribe<control_msgs::JointControllerState>("/robot/right_joint_position_controller/joints/right_e1_controller/state", 1000, callbacke1);
-                //s0cur = n.subscribe<control_msgs::JointControllerState>("/robot/right_joint_position_controller/joints/right_s0_controller/state", 1000, callbacks0);
-                //s1cur = n.subscribe<control_msgs::JointControllerState>("/robot/right_joint_position_controller/joints/right_s1_controller/state", 1000, callbacks1);
-                //w0cur = n.subscribe<control_msgs::JointControllerState>("/robot/right_joint_position_controller/joints/right_w0_controller/state", 1000, callbackw0);
-                //w1cur = n.subscribe<control_msgs::JointControllerState>("/robot/right_joint_position_controller/joints/right_w1_controller/state", 1000, callbackw1);
-                //w2cur = n.subscribe<control_msgs::JointControllerState>("/robot/right_joint_position_controller/joints/right_w2_controller/state", 1000, callbackw2);
-		
 		names[0].data = "right_e0";
 		names[1].data = "right_e1";
 		names[2].data = "right_s0";
