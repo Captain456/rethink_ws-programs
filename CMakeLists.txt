@@ -110,6 +110,7 @@ include_directories(
  add_executable(move_arms2 src/MoveArms2.cpp)
  add_executable(wave src/Wave.cpp)
  add_executable(wave_motion src/WaveMotion.cpp)
+ add_executable(final_wave src/FinalWave.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -117,6 +118,7 @@ include_directories(
  add_dependencies(move_arms2 programs_generate_messages_cpp) 
  add_dependencies(wave programs_generate_messages_cpp)
  add_dependencies(wave_motion programs_generate_messages_cpp)
+ add_dependencies(final_wave programs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(move_arms
@@ -129,6 +131,9 @@ include_directories(
    ${catkin_LIBRARIES}
  )
  target_link_libraries(wave_motion
+   ${catkin_LIBRARIES}
+ )
+ target_link_libraries(final_wave
    ${catkin_LIBRARIES}
  )
 
