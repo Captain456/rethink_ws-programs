@@ -17,12 +17,14 @@
 
 double left_s0, right_s0, head;
 
+//Looks for the position of the head in the HeadState message
 void callbackHead(baxter_core_msgs::HeadState msg1)
 {
 	head = msg1.pan;
 	ROS_INFO("head: %f\n", head);
 }
 
+//Looks for the left_s0 and right_s0 values in the JointState message
 void callbackArm(sensor_msgs::JointState msg2)
 {
 	int right_s0Index = -999, left_s0Index = -999;
@@ -62,6 +64,7 @@ void callbackArm(sensor_msgs::JointState msg2)
 	ROS_INFO("left_s0: %f \tright_s0:%f\n", left_s0, right_s0);
 }
 
+//Takes in the position of the head and outputs an arm position based on that
 double getArmPos(double headPos)
 {
 	double armPos;
@@ -107,18 +110,26 @@ int main(int argc, char** argv)
 	moveHead.speed = 10;
 	ROS_INFO("moveHead.target = %f\n", moveHead.target);
 
+	//Set up the arm command
 	moveArm.mode = 1;
         moveArm.names.push_back(rightName.data);
         moveArm.command.push_back(0);
 
+	//The decision process of moving
 	while(ros::ok())
 	{
 		if(state == 0)
 		{
-			if(head <= (moveHead.target - 0.1) || head >= (moveHead.target + 0.1))
+			if(head <= ((double)moveHead.target - 0.1) || head >= ((double)moveHead.target + 0.1))
+			{
+				ROS_INFO("Published %f.\n", moveHead.target);
 				headPose_pub.publish(moveHead);
+			}
 			else
+			{
+				ROS_INFO("Changing state cuz head = %f\n", head);
 				state = 1;
+			}
 		}
 		else if(state == 1)
 		{
@@ -148,7 +159,6 @@ int main(int argc, char** argv)
 		else
 			break;
 		
-		moveArm.command[0] = armCommand;
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
