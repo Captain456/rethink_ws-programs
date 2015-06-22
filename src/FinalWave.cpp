@@ -19,7 +19,7 @@ int index_space;
 
 void callback(sensor_msgs::JointState msg)
 {
-	/*int left_e0Index = -999;
+	int left_e0Index = -999;
 	
 	for(int i = 0; i < msg.name.size(); i++)
 	{
@@ -40,14 +40,14 @@ void callback(sensor_msgs::JointState msg)
 	s1 = msg.position[left_e0Index + index_space + 3];
 	w0 = msg.position[left_e0Index + index_space + 4];
 	w1 = msg.position[left_e0Index + index_space + 5];
-	w2 = msg.position[left_e0Index + index_space + 6];*/
-	e0 = msg.position[2 + index_space];
+	w2 = msg.position[left_e0Index + index_space + 6];
+	/*e0 = msg.position[2 + index_space];
         e1 = msg.position[3 + index_space];
         s0 = msg.position[4 + index_space];
         s1 = msg.position[5 + index_space];
         w0 = msg.position[6 + index_space];
         w1 = msg.position[7 + index_space];
-        w2 = msg.position[8 + index_space];
+        w2 = msg.position[8 + index_space];*/
 	ROS_INFO("%f, %f, %f, %f, %f, %f, %f\n", e0, e1, s0, s1, w0, w1, w2);
 }
 
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
         ros::Rate loop_rate(10);
         double positions[7];
         std_msgs::String names[7];
-        int waveState = 0;
+        int waveState = 0, count = 0;
 
 	if(strcmp(argv[1], "left") == 0)
         {
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
         positions[5] = 0;
         positions[6] = (M_PI/2);
 
-        baxter_core_msgs::JointCommand wavePose, waveMove1, waveMove2;
+        baxter_core_msgs::JointCommand wavePose, waveMove1, waveMove2, waveMove3;
         for(int i = 0; i < 7; i++)
         {
                 wavePose.names.push_back(names[i].data);
@@ -119,22 +119,35 @@ int main(int argc, char** argv)
         wavePose.mode = 1; //Set it in position mode
 
 	//Move the hand in positive-radian direction
-	positions[5] = 3;
-	waveMove1.mode = 2; //Set it in velocity mode
+	positions[5] = 1;
+	waveMove1.mode = 1; //Set it in velocity mode
 	waveMove1.names.push_back(names[5].data);
 	waveMove1.command.push_back(positions[5]);
 	
 	//Move the hand in negative-radian direction
-	positions[5] = -3;
-	waveMove2.mode = 2; //Set it in velocity mode
+	positions[5] = -1;
+	waveMove2.mode = 1; //Set it in velocity mode
 	waveMove2.names.push_back(names[5].data);
 	waveMove2.command.push_back(positions[5]);
 
+	//Move the hand in negative-radian direction
+        positions[5] = 0;
+        waveMove3.mode = 1; //Set it in velocity mode
+        waveMove3.names.push_back(names[5].data);
+        waveMove3.command.push_back(positions[5]);
+
 	while(ros::ok())
 	{
-		if(waveState == 0)
+		if(count >= 6)
 		{
-			if(e0 >= -3.015 || e1 <= ((M_PI/2) - 0.1) || e1 >= ((M_PI/2) + 0.1) || s0 <= -0.1 || s0 >= 0.1 || s1 <= -0.1 || s1 >= 0.1 || w0 >= -3.045 || w1 <= -0.1 || w1 >= 0.1 || w2 <= ((M_PI/2) - 0.1) || w2 >= ((M_PI/2) + 0.1))
+			if(w1 <= -0.1 || w1 >= 0.1)
+				armPose_pub.publish(waveMove3);
+			else
+				break;
+		}
+		else if(waveState == 0)
+		{
+			if(e0 >= -3.010 || e1 <= ((M_PI/2) - 0.1) || e1 >= ((M_PI/2) + 0.1) || s0 <= -0.1 || s0 >= 0.1 || s1 <= -0.1 || s1 >= 0.1 || w0 >= -3.045 || w1 <= -0.1 || w1 >= 0.1 || w2 <= ((M_PI/2) - 0.1) || w2 >= ((M_PI/2) + 0.1))
 			{
 				armPose_pub.publish(wavePose);
 			}
@@ -145,24 +158,26 @@ int main(int argc, char** argv)
 		}
 		else if(waveState == 1)
 		{
-			if(w1 <= 0.5)
+			if(w1 <= 1)
 			{
 				armPose_pub.publish(waveMove1);
 			}
 			else
 			{
 				waveState = 2;
+				count++;
 			}
 		}
 		else
 		{
-			if(w1 >= -0.5)
+			if(w1 >= -1)
 			{
 				armPose_pub.publish(waveMove2);
 			}
 			else
 			{
 				waveState = 1;
+				count++;
 			}
 		}
 		
