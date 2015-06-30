@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 	ros::Rate loop_rate(10);
 	double positions[7];
         std_msgs::String names[7];
-        int waveState = 0;
+        int directionState = 0, armState = 0;
 
 	if(strcmp(argv[1], "left") == 0)
         {
@@ -145,42 +145,131 @@ int main(int argc, char** argv)
         myPose.pose.orientation.w = oriw;
 
 	srv.request.pose_stamp.push_back(myPose);
-        if(client.call(srv))
-        {
-                ROS_INFO("%d", srv.response.isValid[0]);
-                if(srv.response.isValid[0])
-                {
-                        baxter_core_msgs::JointCommand finalPose;
-                        for(int i = 0; i < srv.response.joints[0].name.size(); i++)
-                        {
-                                finalPose.names.push_back(srv.response.joints[0].name[i]);
-				ROS_INFO("Name: %s\n", srv.response.joints[0].name[i].c_str());
-                                finalPose.command.push_back(srv.response.joints[0].position[i]);
-                        }
-                        finalPose.mode = 1;
-
-                        while(ros::ok)
-                        {	
-				if(!isCorrectPosition(finalPose))
-                                	pose_pub.publish(finalPose);
-				else
-					break;
-
-                                ros::spinOnce();
-                                loop_rate.sleep();
-                        }
-                }
-                else
-                {
-                        ROS_ERROR("Not a valid position.\n");
-                        exit(1);
-                }
-        }
-        else
+	
+	//Moves the arm to intial position before sweeping
+        if(!client.call(srv))
         {
                 ROS_ERROR("Failed to call service 'pose'.\n");
                 exit(1);
         }
+
+	if(!srv.response.isValid[0])
+	{
+                ROS_ERROR("Not a valid position.\n");
+                exit(1);
+        }
+
+	baxter_core_msgs::JointCommand finalPose;
+	for(int i = 0; i < srv.response.joints[0].name.size(); i++)
+	{
+		finalPose.names.push_back(srv.response.joints[0].name[i]);
+		ROS_INFO("Name: %s\n", srv.response.joints[0].name[i].c_str());
+		finalPose.command.push_back(srv.response.joints[0].position[i]);
+	}
+	finalPose.mode = 1;
+
+	while(ros::ok)
+	{	
+		if(!isCorrectPosition(finalPose))
+			pose_pub.publish(finalPose);
+		else
+			break;
+
+		ros::spinOnce();
+		loop_rate.sleep();
+	}
+
+	ROS_INFO("Here\n");
+	
+	//Sweeps arms
+	while(ros::ok())
+	{
+		if(directionState == 0)
+		{
+			//ROS_INFO("Forward\n");
+			if(armState == 0)
+			{
+				//Set up the next position      
+				myPose.pose.position.x += 0.1;
+				srv.request.pose_stamp.clear();
+				srv.request.pose_stamp.push_back(myPose);
+				if(!client.call(srv))
+				{
+					ROS_ERROR("Failed to call service 'pose'.\n");
+					exit(1);
+				}
+				if(!srv.response.isValid[0])
+				{
+					ROS_ERROR("Not a valid position.\n");
+					directionState = 1;
+				}
+				else
+				{
+					//Clear previous commands from msg, then fill it with new commands
+					finalPose.command.clear();
+					for(int i = 0; i < srv.response.joints[0].name.size(); i++)
+					{
+						finalPose.command.push_back(srv.response.joints[0].position[i]);
+					}
+					finalPose.mode = 1;
+
+					//Change the state to 1
+					armState = 1;
+				}
+			}
+			else
+			{
+				if(!isCorrectPosition(finalPose))
+					pose_pub.publish(finalPose);
+				else
+					armState = 0;
+			}
+		}
+		else
+		{
+			//ROS_INFO("Backward\n");
+	                if(armState == 0)
+                        {
+                                //Set up the next position      
+                                myPose.pose.position.x -= 0.1;
+                                srv.request.pose_stamp.clear();
+                                srv.request.pose_stamp.push_back(myPose);
+                                if(!client.call(srv))
+                                {
+                                        ROS_ERROR("Failed to call service 'pose'.\n");
+                                        exit(1);
+                                }
+                                if(!srv.response.isValid[0])
+                                {
+                                        ROS_ERROR("Not a valid position.\n");
+                                        directionState = 0;
+                                }
+				else
+				{
+					//Clear previous commands from msg, then fill it with new commands
+                                	finalPose.command.clear();
+                                	for(int i = 0; i < srv.response.joints[0].name.size(); i++)
+                                	{
+                                	        finalPose.command.push_back(srv.response.joints[0].position[i]);
+                                	}
+                                	finalPose.mode = 1;
+
+                                	//Change the state to 1
+                                	armState = 1;
+				}
+                        }
+                        else
+                        {
+                                if(!isCorrectPosition(finalPose))
+                                        pose_pub.publish(finalPose);
+                                else
+                                        armState = 0;
+                        }
+		}
+
+		ros::spinOnce();
+                loop_rate.sleep();		
+	}
 
         return 0;
 }
