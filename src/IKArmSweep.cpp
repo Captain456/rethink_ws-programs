@@ -43,6 +43,18 @@ void callback(sensor_msgs::JointState msg)
         //ROS_INFO("%f, %f, %f, %f, %f, %f, %f\n", e0, e1, s0, s1, w0, w1, w2);
 }
 
+bool isCorrectPosition(baxter_core_msgs::JointCommand msg)
+{
+	bool isPoseCorrect;
+
+	if(e0 <= msg.command[2] - 0.1 || e0 >= msg.command[2] + 0.1 || e1 <= msg.command[3] - 0.1 || e1 >= msg.command[3] + 0.1 || s0 <= msg.command[0] - 0.1 || s0 >= msg.command[0] + 0.1 || s1 <= msg.command[1] - 0.1 || s1 >= msg.command[1] + 0.1 || w0 <= msg.command[4] - 0.1 || w0 >= msg.command[4] + 0.1 || w1 <= msg.command[5] - 0.1 || w1 >= msg.command[5] + 0.1 || w2 <= msg.command[6] - 0.1 || w2 >= msg.command[6] + 0.1)
+		isPoseCorrect = false;
+	else
+		isPoseCorrect = true;
+	
+	return isPoseCorrect;
+}
+
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "sweeper");
@@ -149,12 +161,11 @@ int main(int argc, char** argv)
 
                         while(ros::ok)
                         {	
-				if(e0 <= finalPose.command[2] - 0.1 || e0 >= finalPose.command[2] + 0.1 || e1 <= finalPose.command[3] - 0.1 || e1 >= finalPose.command[3] + 0.1 || s0 <= finalPose.command[0] - 0.1 || s0 >= finalPose.command[0] + 0.1 || s1 <= finalPose.command[1] - 0.1 || s1 >= finalPose.command[1] + 0.1 || w0 <= finalPose.command[4] - 0.1 || w0 >= finalPose.command[4] + 0.1 || w1 <= finalPose.command[5] - 0.1 || w1 >= finalPose.command[5] + 0.1 || w2 <= finalPose.command[6] - 0.1 || w2 >= finalPose.command[6] + 0.1)
-				{
+				if(!isCorrectPosition(finalPose))
                                 	pose_pub.publish(finalPose);
-				}
 				else
 					break;
+
                                 ros::spinOnce();
                                 loop_rate.sleep();
                         }
