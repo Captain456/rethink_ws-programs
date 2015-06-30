@@ -112,6 +112,7 @@ include_directories(
  add_executable(wave_motion src/WaveMotion.cpp)
  add_executable(final_wave src/FinalWave.cpp)
  add_executable(move_head src/MoveHead.cpp)
+ add_executable(ik_arm_sweep src/IKArmSweep.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -121,6 +122,7 @@ include_directories(
  add_dependencies(wave_motion programs_generate_messages_cpp)
  add_dependencies(final_wave programs_generate_messages_cpp)
  add_dependencies(move_head programs_generate_messages_cpp)
+ add_dependencies(ik_arm_sweep programs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(move_arms
@@ -139,6 +141,9 @@ include_directories(
    ${catkin_LIBRARIES}
  )
  target_link_libraries(move_head
+   ${catkin_LIBRARIES}
+ )
+ target_link_libraries(ik_arm_sweep
    ${catkin_LIBRARIES}
  )
 

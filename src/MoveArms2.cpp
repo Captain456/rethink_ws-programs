@@ -45,7 +45,6 @@ int main(int argc, char** argv)
 
         baxter_core_msgs::SolvePositionIK srv;
         double posx, posy, posz, orix, oriy, oriz, oriw, heading, attitude, bank;
-        int s0, s1, e0, e1, w0, w1, w2;
        
         posx = atof(argv[2]);
         posy = atof(argv[3]);

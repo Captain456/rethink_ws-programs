@@ -110,7 +110,7 @@ int main(int argc, char** argv)
         positions[5] = 0;
         positions[6] = (M_PI/2);
 
-        baxter_core_msgs::JointCommand wavePose, waveMove1, waveMove2, waveMove3;
+        baxter_core_msgs::JointCommand wavePose, wavePose2, waveMove1, waveMove2, waveMove3;
         for(int i = 0; i < 7; i++)
         {
                 wavePose.names.push_back(names[i].data);
@@ -136,6 +136,14 @@ int main(int argc, char** argv)
         waveMove3.names.push_back(names[5].data);
         waveMove3.command.push_back(positions[5]);
 
+	for(int i = 0; i < 7; i++)
+	{
+		wavePose2.names.push_back(names[i].data);
+		wavePose2.command.push_back(0);
+	}
+	wavePose2.command[1] = (M_PI/2);
+	wavePose2.mode = 1;
+
 	while(ros::ok())
 	{
 		if(count >= 6)
@@ -143,7 +151,14 @@ int main(int argc, char** argv)
 			if(w1 <= -0.1 || w1 >= 0.1)
 				armPose_pub.publish(waveMove3);
 			else
-				break;
+			{
+				if(e0 <= -0.1 || e0 >= 0.1 || e1 <= (M_PI/2) - 0.1 || e1 >= (M_PI/2) + 0.1 || s0 <= -0.1 || s0 >= 0.1 || s1 <= -0.1 || s1 >= 0.1 || w0 <= -0.1 || w0 >= 0.1 || w1 <= -0.1 || w1 >= 0.1 || w2 <= -0.1 || w2 >= 0.1)
+				{
+					armPose_pub.publish(wavePose2);
+				}
+				else	
+					break;
+			}
 		}
 		else if(waveState == 0)
 		{

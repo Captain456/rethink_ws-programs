@@ -16,12 +16,14 @@
 #include <cstring>
 
 double left_s0, right_s0, head;
+bool initial_call = false;
 
 //Looks for the position of the head in the HeadState message
 void callbackHead(baxter_core_msgs::HeadState msg1)
 {
 	head = msg1.pan;
 	ROS_INFO("head: %f\n", head);
+	initial_call = true;
 }
 
 //Looks for the left_s0 and right_s0 values in the JointState message
@@ -114,6 +116,9 @@ int main(int argc, char** argv)
 	moveArm.mode = 1;
         moveArm.names.push_back(rightName.data);
         moveArm.command.push_back(0);
+
+	while(!initial_call)
+		ros::spinOnce();
 
 	//The decision process of moving
 	while(ros::ok())
